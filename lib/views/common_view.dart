@@ -16,7 +16,7 @@ class CommonView extends StatelessWidget {
               _launchURL('https://blog.hyunmin.dev');
             },
             tooltip: 'Tistory',
-            icon: Image.asset('tistory-logo-white.png'),
+            icon: Image.asset('assets/tistory-logo-white.png'),
           ),
           SizedBox(
             width: 12,
@@ -26,8 +26,8 @@ class CommonView extends StatelessWidget {
             onPressed: () {
               _launchURL('https://github.com/hyunmindev');
             },
-            tooltip: 'Github',
-            icon: Image.asset('github-logo-white.png'),
+            tooltip: 'GitHub',
+            icon: Image.asset('assets/github-logo-white.png'),
           ),
           SizedBox(
             width: 24,
