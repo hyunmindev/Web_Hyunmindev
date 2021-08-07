@@ -35,12 +35,16 @@ dev_dependencies:
   firebase_core: "^1.4.0"
   firebase_analytics: "^8.2.0"
   provider: ^5.0.0
+  url_launcher: ^6.0.9
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
-
+  assets:
+    - assets/github-logo-white.png
+    - assets/github-logo-black.png
+    - assets/tistory-logo-white.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
