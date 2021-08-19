@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/theme.dart';
+import '../providers/main_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CommonView extends StatelessWidget {
+  final Widget body;
+
+  const CommonView({required this.body});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,6 +47,7 @@ class CommonView extends StatelessWidget {
           print('test');
         },
       ),
+      body: body,
     );
   }
 }
@@ -61,7 +66,7 @@ class _ThemeSwitchState extends State<ThemeSwitch> {
         onChanged: (value) {
           setState(() {
             _isDarkTheme = value;
-            context.read<MyTheme>().setIsDarkTheme(value);
+            context.read<MainTheme>().setIsDarkTheme(value);
           });
         });
   }
