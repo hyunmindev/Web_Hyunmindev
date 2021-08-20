@@ -8,14 +8,21 @@ class HomeView extends StatelessWidget {
       margin: EdgeInsets.all(32),
       alignment: Alignment.center,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'I am Jung Hyunmin!',
-            style: Theme.of(context).textTheme.headline1,
+          Center(
+            child: Text(
+              'I am Jung Hyunmin!',
+              style: Theme.of(context).textTheme.headline1,
+              textAlign: TextAlign.center,
+            ),
           ),
-          // Expanded(
-          //   child: GameCustomPaint(),
-          // ),
+          SizedBox(
+            height: 32,
+          ),
+          Expanded(
+            child: GameCustomPaint(),
+          ),
         ],
       ),
     );

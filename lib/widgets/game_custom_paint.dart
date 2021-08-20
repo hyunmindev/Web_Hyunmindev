@@ -1,29 +1,77 @@
 import 'package:flutter/material.dart';
 
-class GameCustomPaint extends StatelessWidget {
+class GameCustomPaint extends StatefulWidget {
+  _GameCustomPaintState createState() => _GameCustomPaintState();
+}
+
+class _GameCustomPaintState extends State<GameCustomPaint> {
+  Offset _position = Offset(0, 0);
+
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: Sky(),
+    return Listener(
+      onPointerHover: (event) {
+        setState(() {
+          _position = event.position;
+        });
+      },
+      child: CustomPaint(
+        painter: MyPainter(
+          color: Theme.of(context).highlightColor,
+          position: _position,
+        ),
+      ),
     );
   }
 }
 
-class Sky extends CustomPainter {
+class MyPainter extends CustomPainter {
+  final Color color;
+  final Offset position;
+
+  MyPainter({required this.color, required this.position});
+
+  void drawLine(canvas, size, y) {
+    Paint paint = Paint();
+    paint.color = color;
+    paint.strokeCap = StrokeCap.round;
+    paint.strokeWidth = 8.0;
+    Offset p1 = Offset(0, y);
+    Offset p2 = Offset(size.width, y);
+    canvas.drawLine(p1, p2, paint);
+  }
+
+  void drawBar(canvas, size, x) {
+    Paint paint = Paint();
+    paint.color = color;
+    paint.strokeCap = StrokeCap.round;
+    paint.strokeWidth = 8.0;
+    Offset p1 = Offset(x - 100, size.height * 4 / 5);
+    Offset p2 = Offset(x + 100, size.height * 4 / 5);
+    canvas.drawLine(p1, p2, paint);
+  }
+
+  void drawCircle(canvas, size, x, y, radius) {
+    Paint paint = Paint();
+    paint.color = color;
+    paint.strokeCap = StrokeCap.round;
+    paint.style = PaintingStyle.fill;
+    paint.strokeWidth = 8.0;
+    Offset center = Offset(x, y);
+    canvas.drawCircle(center, radius, paint);
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
-
-    Paint paint = Paint(); // Paint 클래스는 어떤 식으로 화면을 그릴지 정할 때 쓰임.
-    paint.color = Color(0xffE7D2CC); // 색은 보라색
-    paint.strokeCap = StrokeCap.round; // 선의 끝은 둥글게 함.
-    paint.strokeWidth = 14.0; // 선의 굵기는 4.0
-    Offset p1 = Offset(0.0, 0.0); // 선을 그리기 위한 좌표값을 만듬.
-    Offset p2 = Offset(size.width, size.height);
-    canvas.drawLine(p1, p2, paint); // 선을 그림.
+    drawLine(canvas, size, 0);
+    drawLine(canvas, size, size.height);
+    drawCircle(canvas, size, position.dx, position.dy, 24);
+    drawBar(canvas, size, position.dx);
+    print(position);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+    return true;
   }
 }
