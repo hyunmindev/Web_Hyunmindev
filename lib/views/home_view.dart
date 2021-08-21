@@ -21,7 +21,7 @@ class HomeView extends StatelessWidget {
             height: 32,
           ),
           Expanded(
-            child: GameCustomPaint(),
+            child: GameView(),
           ),
         ],
       ),
