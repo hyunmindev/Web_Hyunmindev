@@ -31,36 +31,37 @@ class _GameViewState extends State<GameView> {
   @override
   void initState() {
     super.initState();
-    Timer.periodic(Duration(milliseconds: 5), (timer) {
+    Timer.periodic(Duration(milliseconds: 2), (timer) {
       setState(() {
         _circlePosition += Offset(_circleSpeed * cos(_circleRadian),
             _circleSpeed * sin(_circleRadian));
       });
-      if (_circlePosition.dy < 0 + _circleSize) {
+      if (_circlePosition.dy <= 0 + _circleSize) {
         // up
         _circleRadian = -_circleRadian;
         if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
       }
-      if (_circlePosition.dy > _size.height - _circleSize) {
+      if (_circlePosition.dy >= _size.height - _circleSize) {
         // bottom
         _circleRadian = -_circleRadian;
         if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
       }
-      if (_circlePosition.dx < 0 + _circleSize) {
+      if (_circlePosition.dx <= 0 + _circleSize) {
         // left
         _circleRadian = pi - _circleRadian;
         if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
       }
-      if (_circlePosition.dx > _size.width - _circleSize) {
+      if (_circlePosition.dx >= _size.width - _circleSize) {
         // right
-        _circleRadian = pi -_circleRadian;
+        _circleRadian = pi - _circleRadian;
         if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
       }
-      if (_circlePosition.dx + _circleSize > _barP1.dx &&
-          _circlePosition.dx - _circleSize < _barP2.dx &&
-          getDistance(_barP1, _barP2, _circlePosition) < _circleSize) {
+      if (_circlePosition.dx + _circleSize >= _barP1.dx &&
+          _circlePosition.dx - _circleSize <= _barP2.dx &&
+          getDistance(_barP1, _barP2, _circlePosition) <= _circleSize) {
         if (!_isBouncing) {
           _bounceCount += 1;
+          _circleSpeed = log(_bounceCount + 1);
           _circleRadian = -_circleRadian - _barRadian * 2;
           if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
         }
@@ -68,6 +69,18 @@ class _GameViewState extends State<GameView> {
       } else {
         _isBouncing = false;
       }
+    });
+  }
+
+  void handleEvent(event) {
+    setState(() {
+      Offset position = event.position - _offset;
+      Offset center = Offset(_size.width / 2, _size.height / 2);
+      _barRadian = ((position.dx - center.dx) / center.dx) * pi / 2;
+      _barP1 = Offset(position.dx - cos(_barRadian) * 100,
+          position.dy + sin(_barRadian) * 100);
+      _barP2 = Offset(position.dx + cos(_barRadian) * 100,
+          position.dy - sin(_barRadian) * 100);
     });
   }
 
@@ -86,17 +99,8 @@ class _GameViewState extends State<GameView> {
     });
     return Listener(
       key: globalKey,
-      onPointerHover: (event) {
-        setState(() {
-          Offset position = event.position - _offset;
-          Offset center = Offset(_size.width / 2, _size.height / 2);
-          _barRadian = ((position.dx - center.dx) / center.dx) * pi / 2;
-          _barP1 = Offset(position.dx - cos(_barRadian) * 100,
-              position.dy + sin(_barRadian) * 100);
-          _barP2 = Offset(position.dx + cos(_barRadian) * 100,
-              position.dy - sin(_barRadian) * 100);
-        });
-      },
+      onPointerHover: (event) => handleEvent(event),
+      onPointerMove: (event) => handleEvent(event),
       child: CustomPaint(
         painter: MyPainter(
           color: Theme.of(context).highlightColor,
@@ -124,25 +128,17 @@ class MyPainter extends CustomPainter {
       required this.barP1,
       required this.barP2});
 
-  void drawLine(canvas, size, dy) {
+  void drawLine(canvas, dx1, dy1, dx2, dy2) {
     Paint paint = Paint();
     paint.color = color;
     paint.strokeCap = StrokeCap.round;
     paint.strokeWidth = 8.0;
-    Offset p1 = Offset(0, dy);
-    Offset p2 = Offset(size.width, dy);
+    Offset p1 = Offset(dx1, dy1);
+    Offset p2 = Offset(dx2, dy2);
     canvas.drawLine(p1, p2, paint);
   }
 
-  void drawBar(canvas, size, p1, p2) {
-    Paint paint = Paint();
-    paint.color = color;
-    paint.strokeCap = StrokeCap.round;
-    paint.strokeWidth = 8.0;
-    canvas.drawLine(p1, p2, paint);
-  }
-
-  void drawCircle(canvas, size, x, y) {
+  void drawCircle(canvas, x, y) {
     Paint paint = Paint();
     paint.color = color;
     paint.style = PaintingStyle.fill;
@@ -172,12 +168,21 @@ class MyPainter extends CustomPainter {
     textPainter.paint(canvas, offset);
   }
 
+  void drawRRect(canvas, left, top, width, height) {
+    Paint paint = Paint();
+    paint.style = PaintingStyle.stroke;
+    paint.color = color;
+    paint.strokeWidth = 8;
+    Rect rect = Rect.fromLTWH(left, top, width, height);
+    Radius radius = Radius.circular(16);
+    canvas.drawRRect(RRect.fromRectAndRadius(rect, radius), paint);
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
-    drawLine(canvas, size, 0);
-    drawLine(canvas, size, size.height);
-    drawCircle(canvas, size, circlePosition.dx, circlePosition.dy);
-    drawBar(canvas, size, barP1, barP2);
+    drawRRect(canvas, 0, 0, size.width, size.height);
+    drawLine(canvas, barP1.dx, barP1.dy, barP2.dx, barP2.dy);
+    drawCircle(canvas, circlePosition.dx, circlePosition.dy);
     drawText(canvas, size, "I am developer");
   }
 
