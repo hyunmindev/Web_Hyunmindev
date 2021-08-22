@@ -9,7 +9,7 @@ class GameView extends StatefulWidget {
 
 class _GameViewState extends State<GameView> {
   GlobalKey<ScaffoldState> globalKey = GlobalKey();
-  Offset _circleDeltaPosition = Offset(0, 1);
+  Offset _circleDeltaPosition = Offset(1, 1);
   Offset _pointerPosition = Offset(0, 0);
   Offset _circlePosition = Offset(0, 0);
   Offset _offset = Offset(0, 0);
@@ -50,7 +50,7 @@ class _GameViewState extends State<GameView> {
         if (!_isBouncing) {
           _bounceCount += 1;
           _circleDeltaPosition = Offset(
-              _circleDeltaPosition.dx * -1, _circleDeltaPosition.dy * -1);
+              -_circleDeltaPosition.dx * -1, _circleDeltaPosition.dy * -1);
         }
         _isBouncing = true;
       } else {
