@@ -10,15 +10,22 @@ class GameView extends StatefulWidget {
 class _GameViewState extends State<GameView> {
   GlobalKey<ScaffoldState> globalKey = GlobalKey();
   Offset _circleDeltaPosition = Offset(3, 3);
-  Offset _pointerPosition = Offset(0, 0);
   Offset _circlePosition = Offset(0, 0);
   Offset _offset = Offset(0, 0);
   double _circleSize = 24;
   Size _size = Size(0, 0);
   bool _isFirstBuild = true;
-  int _bounceCount = 0;
   bool _isBouncing = false;
-  double _barAngle = 0;
+  int _bounceCount = 0;
+  double _barRadian = 0;
+  Offset _barP1 = Offset(0, 0);
+  Offset _barP2 = Offset(0, 0);
+
+  double getDistance(p1, p2, p) {
+    return ((p2.dx - p1.dx) * (p1.dy - p.dy) - (p1.dx - p.dx) * (p2.dy - p1.dy))
+            .abs() /
+        sqrt(pow(p2.dx - p1.dx, 2) + pow((p2.dy - p1.dy), 2));
+  }
 
   @override
   void initState() {
@@ -43,10 +50,9 @@ class _GameViewState extends State<GameView> {
         _circleDeltaPosition =
             Offset(-log(_bounceCount + 8) * 2, _circleDeltaPosition.dy);
       }
-      if (_circlePosition.dx + _circleSize > _pointerPosition.dx - 100 &&
-          _circlePosition.dx - _circleSize < _pointerPosition.dx + 100 &&
-          _circlePosition.dy + _circleSize > _pointerPosition.dy - 4 &&
-          _circlePosition.dy - _circleSize < _pointerPosition.dy + 4) {
+      if (_circlePosition.dx + _circleSize > _barP1.dx &&
+          _circlePosition.dx - _circleSize < _barP2.dx &&
+          getDistance(_barP1, _barP2, _circlePosition) < _circleSize) {
         if (!_isBouncing) {
           _bounceCount += 1;
           _circleDeltaPosition = Offset(
@@ -66,8 +72,9 @@ class _GameViewState extends State<GameView> {
       if (_isFirstBuild) {
         _offset = box.localToGlobal(Offset.zero);
         _isFirstBuild = false;
-        _pointerPosition = Offset(box.size.width / 2, box.size.height / 2 + 90);
         _circlePosition = Offset(box.size.width / 2, box.size.height / 2 + 50);
+        _barP1 = Offset(box.size.width / 2 - 100, box.size.height / 2 + 90);
+        _barP2 = Offset(box.size.width / 2 + 100, box.size.height / 2 + 90);
       }
       _size = box.size;
     });
@@ -75,18 +82,22 @@ class _GameViewState extends State<GameView> {
       key: globalKey,
       onPointerHover: (event) {
         setState(() {
-          _pointerPosition = event.position - _offset;
+          Offset position = event.position - _offset;
           Offset center = Offset(_size.width / 2, _size.height / 2);
-          _barAngle = ((_pointerPosition.dx - center.dx) / center.dx) * 90;
+          _barRadian = ((position.dx - center.dx) / center.dx) * pi / 2;
+          _barP1 = Offset(position.dx - cos(_barRadian) * 100,
+              position.dy + sin(_barRadian) * 100);
+          _barP2 = Offset(position.dx + cos(_barRadian) * 100,
+              position.dy - sin(_barRadian) * 100);
         });
       },
       child: CustomPaint(
         painter: MyPainter(
           color: Theme.of(context).highlightColor,
-          pointerPosition: _pointerPosition,
           circlePosition: _circlePosition,
           circleSize: _circleSize,
-          barAngle: _barAngle,
+          barP1: _barP1,
+          barP2: _barP2,
         ),
       ),
     );
@@ -95,17 +106,17 @@ class _GameViewState extends State<GameView> {
 
 class MyPainter extends CustomPainter {
   final Color color;
-  final Offset pointerPosition;
   final Offset circlePosition;
   final double circleSize;
-  final double barAngle;
+  final Offset barP1;
+  final Offset barP2;
 
   MyPainter(
       {required this.color,
-      required this.pointerPosition,
       required this.circlePosition,
       required this.circleSize,
-      required this.barAngle});
+      required this.barP1,
+      required this.barP2});
 
   void drawLine(canvas, size, dy) {
     Paint paint = Paint();
@@ -117,14 +128,11 @@ class MyPainter extends CustomPainter {
     canvas.drawLine(p1, p2, paint);
   }
 
-  void drawBar(canvas, size, dx, dy, degree) {
+  void drawBar(canvas, size, p1, p2) {
     Paint paint = Paint();
     paint.color = color;
     paint.strokeCap = StrokeCap.round;
     paint.strokeWidth = 8.0;
-    double radian = degree * pi / 180;
-    Offset p1 = Offset(dx - cos(radian) * 100, dy + sin(radian) * 100);
-    Offset p2 = Offset(dx + cos(radian) * 100, dy - sin(radian) * 100);
     canvas.drawLine(p1, p2, paint);
   }
 
@@ -163,7 +171,7 @@ class MyPainter extends CustomPainter {
     drawLine(canvas, size, 0);
     drawLine(canvas, size, size.height);
     drawCircle(canvas, size, circlePosition.dx, circlePosition.dy);
-    drawBar(canvas, size, pointerPosition.dx, pointerPosition.dy, barAngle);
+    drawBar(canvas, size, barP1, barP2);
     drawText(canvas, size, "I am developer");
   }
 
