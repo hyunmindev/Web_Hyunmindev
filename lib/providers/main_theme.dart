@@ -15,6 +15,7 @@ class MainTheme with ChangeNotifier {
           ),
         ),
         brightness: Brightness.dark,
+        highlightColor: Color(0xffE7D2CC),
       );
     } else {
       return ThemeData(
@@ -26,6 +27,7 @@ class MainTheme with ChangeNotifier {
             fontSize: 48,
           ),
         ),
+        highlightColor: Color(0xffb68b7e),
         scaffoldBackgroundColor: Color(0xffEEEDE7),
         accentColor: Color(0xffB9B7BD),
         primaryColor: Color(0xff868B8E),
