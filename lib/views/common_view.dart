@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hyunmindev/utils/showEmaildialog.dart';
 import 'package:provider/provider.dart';
 import '../providers/main_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -44,7 +45,7 @@ class CommonView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print('test');
+          showEmailDialog(context, 'jung@hyunmin.dev');
         },
       ),
       body: body,
