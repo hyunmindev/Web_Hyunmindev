@@ -9,7 +9,6 @@ class GameView extends StatefulWidget {
 
 class _GameViewState extends State<GameView> {
   GlobalKey<ScaffoldState> globalKey = GlobalKey();
-  Offset _circleDeltaPosition = Offset(3, 3);
   Offset _circlePosition = Offset(0, 0);
   Offset _offset = Offset(0, 0);
   double _circleSize = 24;
@@ -18,6 +17,8 @@ class _GameViewState extends State<GameView> {
   bool _isBouncing = false;
   int _bounceCount = 0;
   double _barRadian = 0;
+  double _circleSpeed = 1;
+  double _circleRadian = pi * 3 / 4;
   Offset _barP1 = Offset(0, 0);
   Offset _barP2 = Offset(0, 0);
 
@@ -30,33 +31,38 @@ class _GameViewState extends State<GameView> {
   @override
   void initState() {
     super.initState();
-    Timer.periodic(Duration(milliseconds: 10), (timer) {
+    Timer.periodic(Duration(milliseconds: 5), (timer) {
       setState(() {
-        _circlePosition += _circleDeltaPosition;
+        _circlePosition += Offset(_circleSpeed * cos(_circleRadian),
+            _circleSpeed * sin(_circleRadian));
       });
       if (_circlePosition.dy < 0 + _circleSize) {
-        _circleDeltaPosition =
-            Offset(_circleDeltaPosition.dx, log(_bounceCount + 8) * 2);
+        // up
+        _circleRadian = -_circleRadian;
+        if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
       }
       if (_circlePosition.dy > _size.height - _circleSize) {
-        _circleDeltaPosition =
-            Offset(_circleDeltaPosition.dx, -log(_bounceCount + 8) * 2);
+        // bottom
+        _circleRadian = -_circleRadian;
+        if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
       }
       if (_circlePosition.dx < 0 + _circleSize) {
-        _circleDeltaPosition =
-            Offset(log(_bounceCount + 8) * 2, _circleDeltaPosition.dy);
+        // left
+        _circleRadian = pi - _circleRadian;
+        if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
       }
       if (_circlePosition.dx > _size.width - _circleSize) {
-        _circleDeltaPosition =
-            Offset(-log(_bounceCount + 8) * 2, _circleDeltaPosition.dy);
+        // right
+        _circleRadian = pi -_circleRadian;
+        if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
       }
       if (_circlePosition.dx + _circleSize > _barP1.dx &&
           _circlePosition.dx - _circleSize < _barP2.dx &&
           getDistance(_barP1, _barP2, _circlePosition) < _circleSize) {
         if (!_isBouncing) {
           _bounceCount += 1;
-          _circleDeltaPosition = Offset(
-              -_circleDeltaPosition.dx * -1, _circleDeltaPosition.dy * -1);
+          _circleRadian = -_circleRadian - _barRadian * 2;
+          if (_circleRadian < 0) _circleRadian = 2 * pi + _circleRadian;
         }
         _isBouncing = true;
       } else {
