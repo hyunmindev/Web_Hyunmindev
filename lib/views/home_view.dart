@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/game_custom_paint.dart';
+import '../widgets/game_view.dart';
 
 class HomeView extends StatelessWidget {
   @override
